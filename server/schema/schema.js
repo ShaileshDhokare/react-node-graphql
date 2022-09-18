@@ -7,7 +7,8 @@ const {
   GraphQLNonNull,
   GraphQLEnumType,
 } = require("graphql");
-const { projects, clients } = require("../sampleData");
+
+// const { projects, clients } = require("../sampleData");
 
 const Project = require("../models/Project");
 const Client = require("../models/Client");
@@ -128,8 +129,51 @@ const mutation = new GraphQLObjectType({
           status: args.status,
           clientId: args.clientId
         });
-
         return project.save();
+      },
+    },
+    //Delete a Project
+    deleteProject: {
+      type: ProjectType,
+      args: {
+        id: { type: GraphQLNonNull(GraphQLID) },
+      },
+      resolve(parent, args) {
+        return Project.findByIdAndRemove(args.id);
+      },
+    },
+    //Update a Project
+    updateProject: {
+      type: ProjectType,
+      args: {
+        id: { type: GraphQLNonNull(GraphQLID) },
+        name: { type: GraphQLNonNull(GraphQLString) },
+        description: { type: GraphQLString },
+        status: {
+          type: new GraphQLEnumType({
+            name: 'ProjectStatusUpdate',
+            values: {
+              new: { value: 'Not Started' },
+              progress: { value: 'In Progress' },
+              completed: { value: 'Completed' },
+            },
+          })
+        },
+        clientId: { type: GraphQLID }
+      },
+      resolve(parent, args) {
+        return Project.findByIdAndUpdate(
+          args.id,
+          {
+            $set: {
+              name: args.name,
+              description: args.description,
+              status: args.status,
+              clientId: args.clientId
+            },
+          },
+          { new: true }
+        );
       },
     },
   }),
