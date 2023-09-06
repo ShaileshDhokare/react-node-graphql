@@ -1,4 +1,4 @@
-// Projects
+// Mock data for Projects
 const projects = [
   {
     id: "1",
